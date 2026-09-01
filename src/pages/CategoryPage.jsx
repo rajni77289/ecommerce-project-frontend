@@ -8,7 +8,6 @@ import {
   X,
 } from "lucide-react";
 import Layout from "../layout/Layout";
-import axios from "axios";
 import API from "../components/API/API";
 
 export default function CategoryPage() {
