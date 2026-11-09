@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const API = axios.create({
-    baseURL: 'http://localhost:5000',
-    // baseURL: 'https://ecommerce-project-backend-tan.vercel.app/',
+    // baseURL: 'http://localhost:5000',
+    baseURL: 'https://ecommerce-project-backend-tan.vercel.app/',
     headers: {
         "Content-Type": "application/json",
     },
@@ -11,6 +11,8 @@ const API = axios.create({
 API.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("token");
+        // console.log("API URL:", config.url);
+    // console.log("TOKEN AVAILABLE:", !!token);
 
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;

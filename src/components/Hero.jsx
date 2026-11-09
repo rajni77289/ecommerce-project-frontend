@@ -33,7 +33,7 @@ export default function Hero() {
           </div>
 
           <img
-            src="https://images.unsplash.com/photo-1523275335684-37898b6baf30"
+            src="/projectImage/watchimg..jpg"
             alt=""
             className="rounded-3xl shadow-2xl w-full"
           />

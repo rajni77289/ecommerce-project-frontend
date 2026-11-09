@@ -16,9 +16,12 @@ import ProtectedRoute from './components/ProtectedRoute'
 import MyOrders from './features/MyOrders';
 import Profile from "./components/Profile";
 import API from './components/API/API'
+import OrderDetails from './features/MyOrderDetails'
+import Wishlist from './features/Wishlist'
+import ProfileEdit from './components/EditProfile';
 
 function App() {
-  const [count, setCount] = useState(0)
+  // const [count, setCount] = useState(0)
 
   return (
     <>
@@ -49,6 +52,10 @@ function App() {
         <Route path="/orders" element={ <ProtectedRoute> <MyOrders /> </ProtectedRoute>}/>
         <Route path="/profile" element={<Profile />} />
         <Route path='/API' element={<API/>}/>
+        <Route path='/myorder' element={<MyOrders/>}/>
+        <Route path="/order/:id" element={<OrderDetails />}/>
+        <Route path="/wishlist" element={<Wishlist/>}/>
+        <Route path='/ProfileEdit/:id' element={<ProfileEdit/>}/>
         </Routes>
       </BrowserRouter>
     </>

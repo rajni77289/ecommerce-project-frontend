@@ -15,7 +15,8 @@ export default function CartPage() {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    const handlePayment = async (subtotal) => {
+    const handlePayment = async (total) => {
+        // console.log("PAYMENT FUNCTION START");
         try {
             setLoading(true);
 
@@ -50,12 +51,32 @@ export default function CartPage() {
                             }
                         );
 
+                        console.log("VERIFY RESPONSE", verifyResponse.data);
                         if (verifyResponse.data.success) {
-                            alert("Payment Successful 🎉");
+                            // console.log("PAYMENT SUCCESS");
+
+                            const orderResponse = await API.post("/api/order/create",
+                                {
+                                    items: cartItems.map((item) => ({
+                                        productId: item.item?._id,
+                                        name: item.item?.name,
+                                        image: item.item?.images?.[0],
+                                        price: item.item?.price,
+                                        quantity: item.quantity,
+                                    })),
+                                    subtotal,
+                                    shipping,
+                                    tax,
+                                    total,
+                                });
+                            console.log("ORDER RESPONSE", orderResponse.data);
+                            if (orderResponse.data.success) {
+                                alert("Payment Successful 🎉");
+                            }
                         }
                     } catch (error) {
-                        console.log(error);
                         alert("Payment verification failed ❌");
+
                     }
                 },
 
@@ -274,7 +295,7 @@ export default function CartPage() {
                                         {/* IMAGE */}
 
                                         <img
-                                            src={`http://localhost:5000/uploadimage/${item.item?.images?.[0]}`}
+                                            src={`${API.defaults.baseURL}/uploadimage/${item.item?.images?.[0]}`}
                                             alt={item.item?.name}
                                             className="
                                                 w-44

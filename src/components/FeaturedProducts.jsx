@@ -1,7 +1,8 @@
 import { Heart, Eye, ShoppingCart, IndianRupee } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import API from "./API/API";
+import addToCart from "../data/AddtoCartData";
 
 // const products = [
 // {
@@ -44,21 +45,42 @@ import API from "./API/API";
 
 export default function FeaturedProducts() {
     const [products, setProducts] = useState([]);
+    const [wishlist, setWishlist] = useState([]);
+    const [SearchParams] = useSearchParams();
+    const search = SearchParams.get("search");
 
     const fetchProducts = async () => {
-        const res = await API.get("/api/products");
+        // const res = await API.get("/api/products");
+        const res = await API.get(`/api/products?search=${search || ""}`);
         setProducts(res.data.data);
         console.log(res)
     }
 
     useEffect(() => {
         fetchProducts()
-    }, [])
+    }, [search])
+    // ADD to CART----------------------------------------
+    // const addToCart = async (id) => {
+    //     console.log("click btn")
+    //     const res = await API.post(`/carts/addtocart/${id}`)
+    //     console.log(res);
+    // }
 
-    const addToCart = async (id) => {
-        console.log("click btn")
-        const res = await API.post(`/carts/addtocart/${id}`)
-        console.log(res);
+    // Wishlist---------------------------------
+    const toggleWishlist = async (id) => {
+        try {
+            const res = await API.post(`/api/wishlist/${id}`);
+
+            if (res.data.success) {
+                setWishlist((prev) =>
+                    prev.includes(id)
+                        ? prev.filter((item) => item !== id)
+                        : [...prev, id]
+                );
+            }
+        } catch (error) {
+            console.log(error.response?.data || error.message);
+        }
     }
     return (
         <section className="bg-slate-50 py-20">
@@ -73,6 +95,12 @@ export default function FeaturedProducts() {
                         Handpicked products just for you
                     </p>
                 </div>
+
+                {products?.length === 0 && (
+                    <p className="col-span-full text-center text-gray-500">
+                        No Products Founds
+                    </p>
+                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
 
@@ -140,8 +168,12 @@ export default function FeaturedProducts() {
                   duration-500
                 "
                                 >
-                                    <button className="bg-white p-2 rounded-full shadow-lg hover:scale-110 transition">
-                                        <Heart size={18} />
+                                    <button
+                                        onClick={() => toggleWishlist(product?._id)}
+                                        className="bg-white p-2 rounded-full shadow-lg hover:scale-110 transition">
+                                        <Heart
+                                            className={wishlist.includes(product?._id) ? "fill-red-500 text-red-500" : "text-gray-600"}
+                                            size={18} />
                                     </button>
 
                                     <button className="bg-white p-2 rounded-full shadow-lg hover:scale-110 transition">
@@ -183,46 +215,30 @@ export default function FeaturedProducts() {
                             </div>
 
                             {/* Content */}
-                            <div className="p-5">
+                            <div className="p-3 pb-6">
 
-                                <h3 className="font-semibold text-lg"><Link to={`/product/${product._id}`}>
-                                    {product.name}</Link>
+                                <h3 className="font-semibold text-base leading-tight">
+                                    <Link to={`/product/${product._id}`}>
+                                        {product.name}
+                                    </Link>
                                 </h3>
 
-                                <div className="flex items-center gap-2 mt-2">
-                                    {/* <span className="text-indigo-600 font-bold text-xl">
-                                        <IndianRupee size={18} />{product.price}
-                                    </span> */}
-                                    <span className="text-indigo-600 font-bold text-xl flex items-center">
-                                        <IndianRupee size={18} />
-                                        {product.price}
+                                <div className="flex items-center gap-2 mt-1">
+                                    <span className="text-gray-400 line-through text-xs flex items-center">
+                                        <IndianRupee size={12} />
+                                        {product?.oldPrice}
                                     </span>
 
-                                    <span className="text-gray-400 line-through">
-                                        {/* {product.oldPrice} */}
+                                    <span className="text-indigo-600 font-bold text-base flex items-center">
+                                        <IndianRupee size={13} />
+                                        {product?.price}
                                     </span>
                                 </div>
 
                                 {/* Rating */}
-                                <div className="flex mt-3 text-yellow-400">
+                                <div className="flex mt-1 text-yellow-400">
                                     ⭐⭐⭐⭐⭐
                                 </div>
-
-                                {/* <button
-                                        className="
-                  w-full
-                  mt-5
-                  bg-indigo-600
-                  hover:bg-indigo-700
-                  text-white
-                  py-3
-                  rounded-xl
-                  transition
-                  font-medium
-                "
-                                    >
-                                        Add To Cart
-                                    </button> */}
 
                             </div>
                         </div>

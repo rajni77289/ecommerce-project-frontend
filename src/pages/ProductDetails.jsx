@@ -8,35 +8,64 @@ import {
     RotateCcw,
 } from "lucide-react";
 import Layout from "../layout/Layout";
-import { data, useParams } from "react-router-dom";
+import { data, useNavigate, useParams } from "react-router-dom";
 import API from "../components/API/API";
+import addToCart from "../data/AddtoCartData";
+import handlePayment from "../data/RazorpaySinglepro";
 
 export default function ProductDetails() {
 
     const { id } = useParams();
     console.log(id);
 
+    const naviget = useNavigate();
+
     const [product, setProduct] = useState(null);
     console.log(product);
 
+    const [relatedProducts, setRelatedProducts] = useState([]);
+    console.log(relatedProducts);
     // getsinglproduct and productdetails:-----
 
     const getSingleProduct = async () => {
+        // setProduct(null)
         const res = await API.post(`/api/products/getsinglproduct/${id}`);
         console.log(res);
+
+        //  console.log("ID:", id);
+    // console.log("New Product:", res.data.data[0]);
+
         setProduct(res.data.data[0]);
     }
 
     useEffect(() => {
         getSingleProduct();
-    }, [])
+    }, [id])
 
-    const [selectedImage, setSelectedImage] = useState(
-        product?.images[0]
-    );
+    // const [selectedImage, setSelectedImage] = useState(
+    //     product?.images[0]
+    // );
+    const [selectedImage, setSelectedImage] = useState("");
 
     const [quantity, setQuantity] = useState(1);
 
+    useEffect(() => {
+        if (product) {
+            API.get(`/api/products/related/${product.category}/${product._id}`)
+                .then(res => {
+                    console.log("Related API:", res.data);
+                    setRelatedProducts(res.data.data);
+
+                })
+                .catch(err => console.log(err));
+        }
+    }, [product]);
+
+    useEffect(() => {
+    if (product) {
+        setSelectedImage(product.images[0]);
+    }
+}, [product]);
     return (
         <Layout>
             <div className="bg-slate-50 min-h-screen">
@@ -240,6 +269,7 @@ export default function ProductDetails() {
             ">
 
                                 <button
+                                onClick={()=>addToCart(product?._id)}
                                     className="
                   flex-1
                   bg-indigo-600
@@ -259,6 +289,7 @@ export default function ProductDetails() {
                                 </button>
 
                                 <button
+                                onClick={()=>handlePayment([{...product,quantity:1}])}
                                     className="
                   flex-1
                   bg-black
@@ -378,9 +409,10 @@ export default function ProductDetails() {
             gap-6
           ">
 
-                            {[1, 2, 3, 4].map((item) => (
+                            {relatedProducts?.map((item) => (
                                 <div
-                                    key={item}
+                                    key={item?._id}
+                                    onClick={()=>naviget(`/product/${item?._id}`)}
                                     className="
                   bg-white
                   rounded-3xl
@@ -391,8 +423,9 @@ export default function ProductDetails() {
                 "
                                 >
                                     <img
-                                        src="https://images.unsplash.com/photo-1546868871-7041f2a55e12"
-                                        alt=""
+                                        src={`http://localhost:5000/uploadimage/${item?.images[0]}`}
+                                        alt={item.name}
+
                                         className="
                     h-60
                     w-full
@@ -402,7 +435,7 @@ export default function ProductDetails() {
 
                                     <div className="p-4">
                                         <h3 className="font-semibold">
-                                            Smart Watch
+                                            {item?.name}
                                         </h3>
 
                                         <p className="
@@ -410,7 +443,7 @@ export default function ProductDetails() {
                     font-bold
                     mt-2
                   ">
-                                            $299
+                                            {item?.price}
                                         </p>
                                     </div>
                                 </div>
